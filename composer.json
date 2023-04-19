@@ -1,0 +1,31 @@
+{
+  "name": "lit/easy-kv",
+  "description": "简单的配置管理,关系对应",
+  "authors": [
+    {
+      "name": "litong",
+      "email": "ghostong@126.com"
+    }
+  ],
+  "keywords": [
+    "easy-kv",
+    "配置管理",
+    "配置中心",
+    "键值管理"
+  ],
+  "require": {
+    "php": ">=5.6.0",
+    "ext-redis": "*",
+    "ext-pdo": "*",
+    "lit/utils": ">=0.2.34",
+    "lit/parameter": ">=2.0.3",
+    "ext-json": "*"
+  },
+  "minimum-stability": "stable",
+  "autoload": {
+    "files": [],
+    "psr-4": {
+      "Lit\\EasyKv\\": "src"
+    }
+  }
+}
