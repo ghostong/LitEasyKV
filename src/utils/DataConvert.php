@@ -9,11 +9,16 @@ class DataConvert
 
     public static function userEncode(DataMapper $dataMapper) {
         $data = $dataMapper->toArray();
-        $data["topic_md5"] = substr(md5($data["topic"]), 0, 8);
-        $data["key_md5"] = substr(md5($data["key"]), 0, 8);
-        $data["value_md5"] = substr(md5($data["value"]), 0, 8);
+        $data["topic_id"] = self::fieldEncode($data["topic"]);
+        $data["key_id"] = self::fieldEncode($data["key"]);
+        $data["value_id"] = self::fieldEncode($data["value"]);
         $data["extend"] = json_encode($data["extend"], JSON_UNESCAPED_UNICODE);
         return $data;
+    }
+
+
+    public static function fieldEncode($field) {
+        return substr(md5($field), 0, 8);
     }
 
 }

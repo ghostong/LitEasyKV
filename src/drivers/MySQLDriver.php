@@ -52,4 +52,22 @@ class MySQLDriver implements DriverInterface
             return false;
         }
     }
+
+    public static function modify(DataMapper $dataMapper, $extendAppend) {
+//        var_dump($dataMapper->getAssigned(), $extendAppend);
+        if ($extendAppend) {
+            $info = self::get($dataMapper->topic->value(), $dataMapper->key->value(), $dataMapper->value->value());
+        }
+        return true;
+    }
+
+    public static function get($topic, $key, $value) {
+
+        [
+            "topic_id" => DataConvert::fieldEncode($topic),
+            "key_id" => DataConvert::fieldEncode($key),
+            "value_id" => DataConvert::fieldEncode($value),
+        ];
+//        self::connect()->query($sql);
+    }
 }

@@ -39,13 +39,37 @@ class AgentDriver
         return true;
     }
 
-    public static function modify(DataMapper $dataMapper) {
+    public static function modify(DataMapper $dataMapper, $extendAppend) {
+        if (!$dataMapper->check()) {
+            self::setCodeMsg($dataMapper->errCode(), $dataMapper->errMsg());
+            return false;
+        }
 
+        if (MySQLDriver::isEnable() && !MySQLDriver::modify($dataMapper, $extendAppend)) {
+            self::setCodeMsg(MySQLDriver::getCode(), MySQLDriver::getMsg());
+            return false;
+        }
+
+        if (RedisDriver::isEnable() && !RedisDriver::modify($dataMapper, $extendAppend)) {
+            return false;
+        }
         return true;
     }
 
     public static function delete($topic, $key, $value) {
 
+        return true;
+    }
+
+    public static function get($topic, $key, $value) {
+        if (MySQLDriver::isEnable() && !MySQLDriver::get($topic, $key, $value)) {
+            self::setCodeMsg(MySQLDriver::getCode(), MySQLDriver::getMsg());
+            return false;
+        }
+
+        if (RedisDriver::isEnable() && !RedisDriver::get($topic, $key, $value)) {
+            return false;
+        }
         return true;
     }
 }

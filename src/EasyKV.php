@@ -25,8 +25,8 @@ class EasyKV
         }
     }
 
-    public static function modify(DataMapper $dataMapper) {
-        if (!AgentDriver::modify($dataMapper)) {
+    public static function modify(DataMapper $dataMapper, $extendAppend = false) {
+        if (!AgentDriver::modify($dataMapper, $extendAppend)) {
             self::setCodeMsg(AgentDriver::getCode(), AgentDriver::getMsg());
             return false;
         } else {
@@ -44,7 +44,12 @@ class EasyKV
     }
 
     public static function get($topic, $key, $value) {
-
+        if (!AgentDriver::get($topic, $key, $value)) {
+            self::setCodeMsg(AgentDriver::getCode(), AgentDriver::getMsg());
+            return false;
+        } else {
+            return true;
+        }
     }
 
     public static function select() {
