@@ -40,7 +40,7 @@ class DataMapper extends Parameter
         //创建时间 自动维护(选填)
         $this->create_time->isString()->setCode(ErrorMsg::DATA_CREATE_TIME_ERROR)->setMsg(ErrorMsg::getComment(ErrorMsg::DATA_CREATE_TIME_ERROR));
 
-        //更新时间  自动维护(选填)
+        //更新时间 自动维护(选填)
         $this->update_time->isString()->setCode(ErrorMsg::DATA_UPDATE_TIME_ERROR)->setMsg(ErrorMsg::getComment(ErrorMsg::DATA_UPDATE_TIME_ERROR));
 
         parent::__construct($params);

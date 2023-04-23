@@ -47,30 +47,38 @@ class AgentDriver
 
         if (MySQLDriver::isEnable() && !MySQLDriver::modify($dataMapper, $extendAppend)) {
             self::setCodeMsg(MySQLDriver::getCode(), MySQLDriver::getMsg());
-            return false;
         }
 
         if (RedisDriver::isEnable() && !RedisDriver::modify($dataMapper, $extendAppend)) {
-            return false;
+            self::setCodeMsg(RedisDriver::getCode(), RedisDriver::getMsg());
         }
         return true;
     }
 
     public static function delete($topic, $key, $value) {
-
+        if (RedisDriver::isEnable() && !RedisDriver::delete($topic, $key, $value)) {
+            self::setCodeMsg(RedisDriver::getCode(), RedisDriver::getMsg());
+        }
+        if (MySQLDriver::isEnable() && !MySQLDriver::delete($topic, $key, $value)) {
+            self::setCodeMsg(MySQLDriver::getCode(), MySQLDriver::getMsg());
+        }
         return true;
     }
 
     public static function get($topic, $key, $value) {
-
-        if (RedisDriver::isEnable() && $mapper = RedisDriver::get($topic, $key, $value)) {
-            return $mapper;
+        if (RedisDriver::isEnable()) {
+            if ($data = RedisDriver::get($topic, $key, $value)) {
+                return $data;
+            } else {
+                self::setCodeMsg(MySQLDriver::getCode(), MySQLDriver::getMsg());
+            }
         }
-
         if (MySQLDriver::isEnable()) {
-            return MySQLDriver::get($topic, $key, $value);
-        } else {
-            self::setCodeMsg(MySQLDriver::getCode(), MySQLDriver::getMsg());
+            if ($data = MySQLDriver::get($topic, $key, $value)) {
+                return $data;
+            } else {
+                self::setCodeMsg(MySQLDriver::getCode(), MySQLDriver::getMsg());
+            }
         }
         return null;
     }

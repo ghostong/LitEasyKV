@@ -22,6 +22,8 @@ use Lit\Utils\LiConst;
  * @value("DATA_VALUE_ERROR","value 错误, 不能为 null, 长度 小于 1024")
  * @value("DATA_STATUS_ERROR","status 错误, 取值范围 -32768 -> 32767")
  * @value("DATA_EXTEND_ERROR","extend 错误, 应为数组且 json_encode 后总长度不超过 65535")
+ * @value("DATA_CREATE_TIME_ERROR","创建时间错误")
+ * @value("DATA_UPDATE_TIME_ERROR","更新时间错误")
  *
  */
 class ErrorMsg extends LiConst

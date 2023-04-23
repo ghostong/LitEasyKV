@@ -34,7 +34,7 @@ class MySQLDriver implements DriverInterface
      * @return \PDO
      * @author litong
      */
-    protected static function connect() {
+    public static function connect() {
         $dsn = sprintf('mysql:dbname=%s;host=%s;charset=%s', self::$config->database->value(), self::$config->hostname->value(), self::$config->charset->value());
         if (!self::$dbConnect) {
             self::$dbConnect = new \PDO($dsn, self::$config->username->value(), self::$config->password->value());
@@ -43,7 +43,7 @@ class MySQLDriver implements DriverInterface
     }
 
     public static function add(DataMapper $dataMapper) {
-        $data = DataConvert::userEncode($dataMapper->toArray());
+        $data = DataConvert::dbEncode($dataMapper->toArray());
         $sql = LiString::array2sql($data, "easy_kv");
         try {
             self::connect()->query($sql);
@@ -59,7 +59,7 @@ class MySQLDriver implements DriverInterface
             $info = self::get($dataMapper->topic->value(), $dataMapper->key->value(), $dataMapper->value->value());
             $dataMapper->extend = array_merge($info->extend->value(), $dataMapper->extend->value());
         }
-        $data = DataConvert::userEncode($dataMapper->getAssigned());
+        $data = DataConvert::dbEncode($dataMapper->getAssigned());
         $data = array_filter($data);
         $topicId = LiArray::get($data, 'topic_id', null, true);
         $keyId = LiArray::get($data, 'key_id', null, true);
@@ -85,9 +85,18 @@ class MySQLDriver implements DriverInterface
         $query = self::connect()->query($sql);
         $oneData = $query->fetch(\PDO::FETCH_ASSOC);
         if ($oneData) {
-            return DataConvert::userDecode($oneData);
+            return DataConvert::dbDecode($oneData);
         } else {
             return null;
         }
+    }
+
+    public static function delete($topic, $key, $value) {
+        $topicId = DataConvert::fieldEncode($topic);
+        $keyId = DataConvert::fieldEncode($key);
+        $valueId = DataConvert::fieldEncode($value);
+        $sql = "delete from `easy_kv` where `topic_id` = '{$topicId}' and `key_id` = '{$keyId}' and `value_id` = '{$valueId}' limit 1";
+        $query = self::connect()->query($sql);
+        return $query->rowCount() > 0;
     }
 }
