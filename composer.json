@@ -18,7 +18,7 @@
     "ext-redis": "*",
     "ext-pdo": "*",
     "lit/utils": ">=0.2.34",
-    "lit/parameter": ">=2.0.3",
+    "lit/parameter": "dev-master",
     "ext-json": "*"
   },
   "minimum-stability": "stable",

@@ -62,14 +62,16 @@ class AgentDriver
     }
 
     public static function get($topic, $key, $value) {
-        if (MySQLDriver::isEnable() && !MySQLDriver::get($topic, $key, $value)) {
-            self::setCodeMsg(MySQLDriver::getCode(), MySQLDriver::getMsg());
-            return false;
+
+        if (RedisDriver::isEnable() && $mapper = RedisDriver::get($topic, $key, $value)) {
+            return $mapper;
         }
 
-        if (RedisDriver::isEnable() && !RedisDriver::get($topic, $key, $value)) {
-            return false;
+        if (MySQLDriver::isEnable()) {
+            return MySQLDriver::get($topic, $key, $value);
+        } else {
+            self::setCodeMsg(MySQLDriver::getCode(), MySQLDriver::getMsg());
         }
-        return true;
+        return null;
     }
 }

@@ -43,5 +43,7 @@ class ErrorMsg extends LiConst
     const DATA_VALUE_ERROR = 10203; //value 错误, 不能为 null, 长度 小于 1024
     const DATA_STATUS_ERROR = 10204; //status 错误, 取值范围 -32768 -> 32767
     const DATA_EXTEND_ERROR = 10205; //extend 错误, 应为数组且 json_encode 后总长度不超过 65535
+    const DATA_CREATE_TIME_ERROR = 10206; //创建时间错误
+    const DATA_UPDATE_TIME_ERROR = 10207; //更新时间错误
 
 }

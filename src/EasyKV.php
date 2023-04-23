@@ -43,12 +43,22 @@ class EasyKV
         }
     }
 
+    /**
+     * 获取一个
+     * @date 2023/4/23
+     * @param $topic
+     * @param $key
+     * @param $value
+     * @return DataMapper|null
+     * @author litong
+     */
     public static function get($topic, $key, $value) {
-        if (!AgentDriver::get($topic, $key, $value)) {
+        $mapper = AgentDriver::get($topic, $key, $value);
+        if ($mapper) {
             self::setCodeMsg(AgentDriver::getCode(), AgentDriver::getMsg());
-            return false;
+            return $mapper;
         } else {
-            return true;
+            return null;
         }
     }
 

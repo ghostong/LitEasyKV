@@ -5,6 +5,7 @@ namespace Lit\EasyKv\drivers;
 use Lit\EasyKv\mappers\DataMapper;
 use Lit\EasyKv\mappers\MySQLConfigMapper;
 use Lit\EasyKv\utils\DataConvert;
+use Lit\Utils\LiArray;
 use Lit\Utils\LiString;
 
 class MySQLDriver implements DriverInterface
@@ -42,7 +43,7 @@ class MySQLDriver implements DriverInterface
     }
 
     public static function add(DataMapper $dataMapper) {
-        $data = DataConvert::userEncode($dataMapper);
+        $data = DataConvert::userEncode($dataMapper->toArray());
         $sql = LiString::array2sql($data, "easy_kv");
         try {
             self::connect()->query($sql);
@@ -54,20 +55,39 @@ class MySQLDriver implements DriverInterface
     }
 
     public static function modify(DataMapper $dataMapper, $extendAppend) {
-//        var_dump($dataMapper->getAssigned(), $extendAppend);
         if ($extendAppend) {
             $info = self::get($dataMapper->topic->value(), $dataMapper->key->value(), $dataMapper->value->value());
+            $dataMapper->extend = array_merge($info->extend->value(), $dataMapper->extend->value());
         }
-        return true;
+        $data = DataConvert::userEncode($dataMapper->getAssigned());
+        $data = array_filter($data);
+        $topicId = LiArray::get($data, 'topic_id', null, true);
+        $keyId = LiArray::get($data, 'key_id', null, true);
+        $valueId = LiArray::get($data, 'value_id', null, true);
+        unset($data['topic'], $data['key'], $data['value']);
+        if (empty($data)) {
+            return false;
+        }
+        $fields = array_map(function ($v, $k) {
+            return "`{$k}` = '{$v}'";
+        }, $data, array_keys($data));
+        $setStr = implode(',', $fields);
+        $sql = "update `easy_kv` set {$setStr} where `topic_id` = '{$topicId}' and `key_id` = '{$keyId}' and `value_id` = '{$valueId}' limit 1";
+        $query = self::connect()->query($sql);
+        return $query->rowCount() > 0;
     }
 
     public static function get($topic, $key, $value) {
-
-        [
-            "topic_id" => DataConvert::fieldEncode($topic),
-            "key_id" => DataConvert::fieldEncode($key),
-            "value_id" => DataConvert::fieldEncode($value),
-        ];
-//        self::connect()->query($sql);
+        $topicId = DataConvert::fieldEncode($topic);
+        $keyId = DataConvert::fieldEncode($key);
+        $valueId = DataConvert::fieldEncode($value);
+        $sql = "select * from `easy_kv` where `topic_id` = '{$topicId}' and `key_id` = '{$keyId}' and `value_id` = '{$valueId}' limit 1";
+        $query = self::connect()->query($sql);
+        $oneData = $query->fetch(\PDO::FETCH_ASSOC);
+        if ($oneData) {
+            return DataConvert::userDecode($oneData);
+        } else {
+            return null;
+        }
     }
 }
