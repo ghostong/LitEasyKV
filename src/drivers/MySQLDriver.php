@@ -4,6 +4,7 @@ namespace Lit\EasyKv\drivers;
 
 use Lit\EasyKv\mappers\DataMapper;
 use Lit\EasyKv\mappers\MySQLConfigMapper;
+use Lit\EasyKv\mappers\SelectMapper;
 use Lit\EasyKv\utils\DataConvert;
 use Lit\Utils\LiArray;
 use Lit\Utils\LiString;
@@ -44,7 +45,7 @@ class MySQLDriver implements DriverInterface
 
     public static function add(DataMapper $dataMapper) {
         $data = DataConvert::dbEncode($dataMapper->toArray());
-        $sql = LiString::array2sql($data, "easy_kv");
+        $sql = LiString::array2sql(array_filter($data), "easy_kv");
         try {
             self::connect()->query($sql);
             return true;
@@ -98,5 +99,18 @@ class MySQLDriver implements DriverInterface
         $sql = "delete from `easy_kv` where `topic_id` = '{$topicId}' and `key_id` = '{$keyId}' and `value_id` = '{$valueId}' limit 1";
         $query = self::connect()->query($sql);
         return $query->rowCount() > 0;
+    }
+
+    public static function select(SelectMapper $selectMapper) {
+        $topicId = DataConvert::fieldEncode($selectMapper->topic->value());
+        $keyId = DataConvert::fieldEncode($selectMapper->key->value());
+        $orderBy = $selectMapper->order_by->value();
+        $scene = $selectMapper->order_scene->value();
+        $sql = "select * from `easy_kv` where `topic_id` = '{$topicId}' and `key_id` = '{$keyId}' order by {$orderBy} {$scene}";
+        $query = self::connect()->query($sql);
+        $data = $query->fetchAll(\PDO::FETCH_ASSOC);
+        return array_map(function ($v) {
+            return DataConvert::dbDecode($v);
+        }, $data);
     }
 }

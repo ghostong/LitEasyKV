@@ -5,6 +5,7 @@ namespace Lit\EasyKv\drivers;
 use Lit\EasyKv\mappers\DataMapper;
 use Lit\EasyKv\mappers\MySQLConfigMapper;
 use Lit\EasyKv\mappers\RedisConfigMapper;
+use Lit\EasyKv\mappers\SelectMapper;
 
 class AgentDriver
 {
@@ -81,5 +82,18 @@ class AgentDriver
             }
         }
         return null;
+    }
+
+    public static function select(SelectMapper $selectMapper) {
+        if (!$selectMapper->check()) {
+            self::setCodeMsg($selectMapper->errCode(), $selectMapper->errMsg());
+            return false;
+        }
+        if (RedisDriver::isEnable()) {
+
+        }
+        if (MySQLDriver::isEnable()) {
+            return MySQLDriver::select($selectMapper);
+        }
     }
 }

@@ -6,6 +6,7 @@ use Lit\EasyKv\drivers\AgentDriver;
 use Lit\EasyKv\mappers\DataMapper;
 use Lit\EasyKv\mappers\MySQLConfigMapper;
 use Lit\EasyKv\mappers\RedisConfigMapper;
+use Lit\EasyKv\mappers\SelectMapper;
 
 /**
  * 简单的kv存储
@@ -106,8 +107,8 @@ class EasyKV
      * @return
      * @author litong
      */
-    public static function select($topic, $key, $status, $order) {
-
+    public static function select(SelectMapper $selectMapper) {
+        return AgentDriver::select($selectMapper);
     }
 
 }

@@ -24,6 +24,10 @@ use Lit\Utils\LiConst;
  * @value("DATA_EXTEND_ERROR","extend 错误, 应为数组且 json_encode 后总长度不超过 65535")
  * @value("DATA_CREATE_TIME_ERROR","创建时间错误")
  * @value("DATA_UPDATE_TIME_ERROR","更新时间错误")
+ * @value("DATA_USER_ORDER_ERROR","用户自定义排序错误")
+ *
+ * @value("SELECT_ORDER_BY_ERROR","排序字段必须在白名单之内")
+ * @value("SELECT_ORDER_SCENE_ERROR","排序方式必须在白名单之内")
  *
  */
 class ErrorMsg extends LiConst
@@ -47,5 +51,9 @@ class ErrorMsg extends LiConst
     const DATA_EXTEND_ERROR = 10205; //extend 错误, 应为数组且 json_encode 后总长度不超过 65535
     const DATA_CREATE_TIME_ERROR = 10206; //创建时间错误
     const DATA_UPDATE_TIME_ERROR = 10207; //更新时间错误
+    const DATA_USER_ORDER_ERROR = 10208; //用户自定义排序错误
+
+    const SELECT_ORDER_BY_ERROR = 10301;//排序字段必须在白名单之内
+    const SELECT_ORDER_SCENE_ERROR = 10302;//排序方式必须在白名单之内
 
 }
