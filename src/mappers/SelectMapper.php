@@ -25,8 +25,8 @@ class SelectMapper extends Parameter
         //键
         $this->key->isString()->notEmpty()->setDefault("default")->minLength(1)->maxLength(64)->setCode(ErrorMsg::DATA_KEY_ERROR)->setMsg(ErrorMsg::getComment(ErrorMsg::DATA_KEY_ERROR));
 
-        //状态 默认1(选填)
-        $this->status->isNumeric()->setDefault(1)->ge(-32768)->le(32767)->setCode(ErrorMsg::DATA_STATUS_ERROR)->setMsg(ErrorMsg::getComment(ErrorMsg::DATA_STATUS_ERROR));
+        //状态
+        $this->status->isNumeric()->ge(-32768)->le(32767)->setCode(ErrorMsg::DATA_STATUS_ERROR)->setMsg(ErrorMsg::getComment(ErrorMsg::DATA_STATUS_ERROR));
 
         //排序字段
         $this->order_by->isString()->in([

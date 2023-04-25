@@ -106,7 +106,12 @@ class MySQLDriver implements DriverInterface
         $keyId = DataConvert::fieldEncode($selectMapper->key->value());
         $orderBy = $selectMapper->order_by->value();
         $scene = $selectMapper->order_scene->value();
-        $sql = "select * from `easy_kv` where `topic_id` = '{$topicId}' and `key_id` = '{$keyId}' order by {$orderBy} {$scene}";
+        $status = $selectMapper->status->value();
+        $where = "";
+        if ($status) {
+            $where .= "and `status` = '{$status}'";
+        }
+        $sql = "select * from `easy_kv` where `topic_id` = '{$topicId}' and `key_id` = '{$keyId}' {$where} order by {$orderBy} {$scene}";
         $query = self::connect()->query($sql);
         $data = $query->fetchAll(\PDO::FETCH_ASSOC);
         return array_map(function ($v) {
