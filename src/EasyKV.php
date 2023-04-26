@@ -104,7 +104,8 @@ class EasyKV
     /**
      * 查询
      * @date 2023/4/23
-     * @return
+     * @param SelectMapper $selectMapper
+     * @return array|DataMapper[]
      * @author litong
      */
     public static function select(SelectMapper $selectMapper) {

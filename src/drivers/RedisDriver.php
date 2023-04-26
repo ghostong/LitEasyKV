@@ -4,14 +4,19 @@ namespace Lit\EasyKv\drivers;
 
 use Lit\EasyKv\mappers\DataMapper;
 use Lit\EasyKv\mappers\RedisConfigMapper;
+use Lit\EasyKv\utils\DataConvert;
 
 class RedisDriver implements DriverInterface
 {
 
     use \Lit\Utils\LiErrMsg;
 
+    /**
+     * @var RedisConfigMapper $config
+     */
     protected static $config = null;
     protected static $useRedis = false;
+    protected static $dbConnect = null;
 
     public static function isEnable() {
         return self::$useRedis;
@@ -29,23 +34,66 @@ class RedisDriver implements DriverInterface
      * @author litong
      */
     public static function connect() {
-
-        return new \Redis();
+        if (!self::$dbConnect) {
+            self::$dbConnect = new \Redis();
+            self::$dbConnect->connect(self::$config->host->value(), self::$config->port->value());
+            if (!is_null(self::$config->auth->value())) {
+                self::$dbConnect->auth(self::$config->auth->value());
+            }
+        }
+        return self::$dbConnect;
     }
 
     public static function add(DataMapper $dataMapper) {
+        $dataMapper->create_time = date("Y-m-d H:i:s");
+        $dataMapper->update_time = date("Y-m-d H:i:s");
+        $infoKey = self::dataKey($dataMapper->topic->value(), $dataMapper->key->value(), $dataMapper->value->value());
+        $topicKeyKey = self::topicKeyListKey($dataMapper->topic->value(), $dataMapper->key->value());
+        self::connect()->set($infoKey, json_encode($dataMapper->toArray()));
+        self::connect()->zAdd($topicKeyKey, $dataMapper->weight->value(), $infoKey);
         return true;
     }
 
     public static function modify(DataMapper $dataMapper, $extendAppend) {
+        if ($extendAppend) {
+            $info = self::get($dataMapper->topic->value(), $dataMapper->key->value(), $dataMapper->value->value());
+            $dataMapper->extend = array_merge($info->extend->value(), $dataMapper->extend->value());
+        }
+        $dataMapper->update_time = date("Y-m-d H:i:s");
+        $infoKey = self::dataKey($dataMapper->topic->value(), $dataMapper->key->value(), $dataMapper->value->value());
+        $topicKeyKey = self::topicKeyListKey($dataMapper->topic->value(), $dataMapper->key->value());
+        self::connect()->set($infoKey, json_encode($dataMapper->toArray()));
+        self::connect()->zAdd($topicKeyKey, $dataMapper->weight->value(), $infoKey);
         return true;
     }
 
     public static function get($topic, $key, $value) {
-        return true;
+        $infoKey = self::dataKey($topic, $key, $value);
+        $info = self::connect()->get($infoKey);
+        if ($info) {
+            return new DataMapper(json_decode($info, true));
+        } else {
+            return null;
+        }
     }
 
     public static function delete($topic, $key, $value) {
+        $infoKey = self::dataKey($topic, $key, $value);
+        $topicKeyKey = self::topicKeyListKey($topic, $key);
+        self::connect()->del($infoKey);
+        self::connect()->zRem($topicKeyKey, $infoKey);
         return true;
+    }
+
+    private static function dataKey($topic, $key, $value) {
+        return sprintf("easy:kv:info:%s:%s:%s", DataConvert::fieldEncode($topic), DataConvert::fieldEncode($key), DataConvert::fieldEncode($value));
+    }
+
+    private static function topicListKey($topic, $key, $value) {
+        return sprintf("easy:kv:list:%s", $topic);
+    }
+
+    private static function topicKeyListKey($topic, $key) {
+        return sprintf("easy:kv:list:%s:%s", $topic, $key);
     }
 }

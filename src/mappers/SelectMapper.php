@@ -11,7 +11,6 @@ use Lit\Parameter\V2\Types\Types;
  * @property Types $topic 主题
  * @property Types $key 键
  * @property Types $status 状态
- * @property Types $order_by 排序字段
  * @property Types $order_scene 排序方式
  */
 class SelectMapper extends Parameter
@@ -27,12 +26,6 @@ class SelectMapper extends Parameter
 
         //状态
         $this->status->isNumeric()->ge(-32768)->le(32767)->setCode(ErrorMsg::DATA_STATUS_ERROR)->setMsg(ErrorMsg::getComment(ErrorMsg::DATA_STATUS_ERROR));
-
-        //排序字段
-        $this->order_by->isString()->in([
-            SelectConst::ORDER_BY_CREATE, SelectConst::ORDER_BY_UPDATE, SelectConst::ORDER_BY_USER
-        ])->setDefault(SelectConst::ORDER_BY_CREATE)
-            ->setCode(ErrorMsg::SELECT_ORDER_BY_ERROR)->setMsg(ErrorMsg::getComment(ErrorMsg::SELECT_ORDER_BY_ERROR));
 
         //排序方式
         $this->order_scene->isString()->in([

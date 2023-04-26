@@ -35,6 +35,7 @@ class AgentDriver
         }
 
         if (RedisDriver::isEnable() && !RedisDriver::add($dataMapper)) {
+            self::setCodeMsg(RedisDriver::getCode(), RedisDriver::getMsg());
             return false;
         }
         return true;
@@ -87,7 +88,7 @@ class AgentDriver
     public static function select(SelectMapper $selectMapper) {
         if (!$selectMapper->check()) {
             self::setCodeMsg($selectMapper->errCode(), $selectMapper->errMsg());
-            return false;
+            return [];
         }
         if (RedisDriver::isEnable()) {
 

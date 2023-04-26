@@ -2,6 +2,7 @@
 
 namespace Lit\EasyKv\drivers;
 
+use Lit\EasyKv\constants\ErrorMsg;
 use Lit\EasyKv\mappers\DataMapper;
 use Lit\EasyKv\mappers\MySQLConfigMapper;
 use Lit\EasyKv\mappers\SelectMapper;
@@ -36,7 +37,7 @@ class MySQLDriver implements DriverInterface
      * @author litong
      */
     public static function connect() {
-        $dsn = sprintf('mysql:dbname=%s;host=%s;charset=%s', self::$config->database->value(), self::$config->hostname->value(), self::$config->charset->value());
+        $dsn = sprintf('mysql:dbname=%s;host=%s;charset=%s', self::$config->database->value(), self::$config->host->value(), self::$config->charset->value());
         if (!self::$dbConnect) {
             self::$dbConnect = new \PDO($dsn, self::$config->username->value(), self::$config->password->value());
         }
@@ -44,13 +45,19 @@ class MySQLDriver implements DriverInterface
     }
 
     public static function add(DataMapper $dataMapper) {
+        $dataMapper->create_time = date("Y-m-d H:i:s");
+        $dataMapper->update_time = date("Y-m-d H:i:s");
         $data = DataConvert::dbEncode($dataMapper->toArray());
         $sql = LiString::array2sql(array_filter($data), "easy_kv");
         try {
             self::connect()->query($sql);
             return true;
         } catch (\Exception $exception) {
-            self::setCodeMsg($exception->getCode(), $exception->getMessage());
+            if (stripos($exception->getMessage(), "duplicate entry") !== false) {
+                self::setCodeMsg(ErrorMsg::DATA_ALREADY_EXISTS, ErrorMsg::getComment(ErrorMsg::DATA_ALREADY_EXISTS));
+            } else {
+                self::setCodeMsg($exception->getCode(), $exception->getMessage());
+            }
             return false;
         }
     }
@@ -60,15 +67,16 @@ class MySQLDriver implements DriverInterface
             $info = self::get($dataMapper->topic->value(), $dataMapper->key->value(), $dataMapper->value->value());
             $dataMapper->extend = array_merge($info->extend->value(), $dataMapper->extend->value());
         }
+        $dataMapper->update_time = date("Y-m-d H:i:s");
         $data = DataConvert::dbEncode($dataMapper->getAssigned());
         $data = array_filter($data);
         $topicId = LiArray::get($data, 'topic_id', null, true);
         $keyId = LiArray::get($data, 'key_id', null, true);
         $valueId = LiArray::get($data, 'value_id', null, true);
-        unset($data['topic'], $data['key'], $data['value']);
-        if (empty($data)) {
-            return false;
-        }
+//        unset($data['topic'], $data['key'], $data['value']);
+//        if (empty($data)) {
+//            return false;
+//        }
         $fields = array_map(function ($v, $k) {
             return "`{$k}` = '{$v}'";
         }, $data, array_keys($data));
@@ -104,14 +112,13 @@ class MySQLDriver implements DriverInterface
     public static function select(SelectMapper $selectMapper) {
         $topicId = DataConvert::fieldEncode($selectMapper->topic->value());
         $keyId = DataConvert::fieldEncode($selectMapper->key->value());
-        $orderBy = $selectMapper->order_by->value();
         $scene = $selectMapper->order_scene->value();
         $status = $selectMapper->status->value();
         $where = "";
         if ($status) {
             $where .= "and `status` = '{$status}'";
         }
-        $sql = "select * from `easy_kv` where `topic_id` = '{$topicId}' and `key_id` = '{$keyId}' {$where} order by {$orderBy} {$scene}";
+        $sql = "select * from `easy_kv` where `topic_id` = '{$topicId}' and `key_id` = '{$keyId}' {$where} order by `weight` {$scene}";
         $query = self::connect()->query($sql);
         $data = $query->fetchAll(\PDO::FETCH_ASSOC);
         return array_map(function ($v) {

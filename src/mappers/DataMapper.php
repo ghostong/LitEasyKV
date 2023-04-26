@@ -15,7 +15,7 @@ use Lit\Parameter\V2\Types\Types;
  * @property Types $extend 扩展
  * @property Types $create_time 创建时间
  * @property Types $update_time 更新时间
- * @property Types $user_order 用户自定义排序
+ * @property Types $weight 数据权重
  */
 class DataMapper extends Parameter
 {
@@ -38,8 +38,8 @@ class DataMapper extends Parameter
             return strlen(json_encode($v)) < 65535;
         })->setCode(ErrorMsg::DATA_EXTEND_ERROR)->setMsg(ErrorMsg::getComment(ErrorMsg::DATA_EXTEND_ERROR));
 
-        //用户排序
-        $this->user_order->isString()->setDefault(1)->maxLength(16)->setCode(ErrorMsg::DATA_USER_ORDER_ERROR)->setMsg(ErrorMsg::getComment(ErrorMsg::DATA_USER_ORDER_ERROR));
+        //数据权重
+        $this->weight->isInteger()->setDefault(1)->setCode(ErrorMsg::DATA_WEIGHT_ERROR)->setMsg(ErrorMsg::getComment(ErrorMsg::DATA_WEIGHT_ERROR));
 
         //创建时间 自动维护(选填)
         $this->create_time->isString()->setCode(ErrorMsg::DATA_CREATE_TIME_ERROR)->setMsg(ErrorMsg::getComment(ErrorMsg::DATA_CREATE_TIME_ERROR));
