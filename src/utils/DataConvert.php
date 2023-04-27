@@ -34,6 +34,15 @@ class DataConvert
         return new DataMapper($data);
     }
 
+    public static function redisEncode($data) {
+        return json_encode($data);
+    }
+
+    public static function redisDecode($data) {
+        $data = json_decode($data, true);
+        return new DataMapper($data);
+    }
+
     /**
      * 字段id编码
      * @date 2023/4/23

@@ -10,7 +10,6 @@ use Lit\Parameter\V2\Types\Types;
 /**
  * @property Types $topic 主题
  * @property Types $key 键
- * @property Types $status 状态
  * @property Types $order_scene 排序方式
  */
 class SelectMapper extends Parameter
@@ -23,9 +22,6 @@ class SelectMapper extends Parameter
 
         //键
         $this->key->isString()->notEmpty()->setDefault("default")->minLength(1)->maxLength(64)->setCode(ErrorMsg::DATA_KEY_ERROR)->setMsg(ErrorMsg::getComment(ErrorMsg::DATA_KEY_ERROR));
-
-        //状态
-        $this->status->isNumeric()->ge(-32768)->le(32767)->setCode(ErrorMsg::DATA_STATUS_ERROR)->setMsg(ErrorMsg::getComment(ErrorMsg::DATA_STATUS_ERROR));
 
         //排序方式
         $this->order_scene->isString()->in([

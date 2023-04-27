@@ -63,9 +63,11 @@ class MySQLDriver implements DriverInterface
     }
 
     public static function modify(DataMapper $dataMapper, $extendAppend) {
+        $info = self::get($dataMapper->topic->value(), $dataMapper->key->value(), $dataMapper->value->value());
         if ($extendAppend) {
-            $info = self::get($dataMapper->topic->value(), $dataMapper->key->value(), $dataMapper->value->value());
             $dataMapper->extend = array_merge($info->extend->value(), $dataMapper->extend->value());
+        } elseif (is_null($dataMapper->extend->value())) {
+            $dataMapper->extend = $info->extend->value();
         }
         $dataMapper->update_time = date("Y-m-d H:i:s");
         $data = DataConvert::dbEncode($dataMapper->getAssigned());
@@ -73,10 +75,6 @@ class MySQLDriver implements DriverInterface
         $topicId = LiArray::get($data, 'topic_id', null, true);
         $keyId = LiArray::get($data, 'key_id', null, true);
         $valueId = LiArray::get($data, 'value_id', null, true);
-//        unset($data['topic'], $data['key'], $data['value']);
-//        if (empty($data)) {
-//            return false;
-//        }
         $fields = array_map(function ($v, $k) {
             return "`{$k}` = '{$v}'";
         }, $data, array_keys($data));
@@ -113,11 +111,6 @@ class MySQLDriver implements DriverInterface
         $topicId = DataConvert::fieldEncode($selectMapper->topic->value());
         $keyId = DataConvert::fieldEncode($selectMapper->key->value());
         $scene = $selectMapper->order_scene->value();
-        $status = $selectMapper->status->value();
-        $where = "";
-        if ($status) {
-            $where .= "and `status` = '{$status}'";
-        }
         $sql = "select * from `easy_kv` where `topic_id` = '{$topicId}' and `key_id` = '{$keyId}' {$where} order by `weight` {$scene}";
         $query = self::connect()->query($sql);
         $data = $query->fetchAll(\PDO::FETCH_ASSOC);

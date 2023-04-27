@@ -20,7 +20,6 @@ use Lit\Utils\LiConst;
  * @value("DATA_TOPIC_ERROR","topic 错误, 长度应为 1-64 个字符")
  * @value("DATA_KEY_ERROR","key 错误, 长度应为 1-64 个字符")
  * @value("DATA_VALUE_ERROR","value 错误, 不能为 null, 长度 小于 1024")
- * @value("DATA_STATUS_ERROR","status 错误, 取值范围 -32768 -> 32767")
  * @value("DATA_EXTEND_ERROR","extend 错误, 应为数组且 json_encode 后总长度不超过 65535")
  * @value("DATA_CREATE_TIME_ERROR","创建时间错误")
  * @value("DATA_UPDATE_TIME_ERROR","更新时间错误")
@@ -48,12 +47,11 @@ class ErrorMsg extends LiConst
     const DATA_TOPIC_ERROR = 10201; //topic 错误, 长度应为 1-64 个字符
     const DATA_KEY_ERROR = 10202; //key 错误, 长度应为 1-64 个字符
     const DATA_VALUE_ERROR = 10203; //value 错误, 不能为 null, 长度 小于 1024
-    const DATA_STATUS_ERROR = 10204; //status 错误, 取值范围 -32768 -> 32767
-    const DATA_EXTEND_ERROR = 10205; //extend 错误, 应为数组且 json_encode 后总长度不超过 65535
-    const DATA_CREATE_TIME_ERROR = 10206; //创建时间错误
-    const DATA_UPDATE_TIME_ERROR = 10207; //更新时间错误
-    const DATA_WEIGHT_ERROR = 10208; //用户自定义权重错误
-    const DATA_ALREADY_EXISTS = 10209; //数据已经存在
+    const DATA_EXTEND_ERROR = 10204; //extend 错误, 应为数组且 json_encode 后总长度不超过 65535
+    const DATA_CREATE_TIME_ERROR = 10205; //创建时间错误
+    const DATA_UPDATE_TIME_ERROR = 10206; //更新时间错误
+    const DATA_WEIGHT_ERROR = 10207; //用户自定义权重错误
+    const DATA_ALREADY_EXISTS = 10208; //数据已经存在
 
     const SELECT_ORDER_SCENE_ERROR = 10301;//排序方式必须在白名单之内
 

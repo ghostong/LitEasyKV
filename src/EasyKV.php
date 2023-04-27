@@ -55,7 +55,7 @@ class EasyKV
      * @return bool
      * @author litong
      */
-    public static function modify(DataMapper $dataMapper, $extendAppend = false) {
+    public static function modify(DataMapper $dataMapper, $extendAppend = true) {
         if (!AgentDriver::modify($dataMapper, $extendAppend)) {
             self::setCodeMsg(AgentDriver::getCode(), AgentDriver::getMsg());
             return false;

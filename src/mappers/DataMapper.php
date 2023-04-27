@@ -11,7 +11,6 @@ use Lit\Parameter\V2\Types\Types;
  * @property Types $topic 主题
  * @property Types $key 键
  * @property Types $value 值
- * @property Types $status 状态
  * @property Types $extend 扩展
  * @property Types $create_time 创建时间
  * @property Types $update_time 更新时间
@@ -29,9 +28,6 @@ class DataMapper extends Parameter
 
         //值
         $this->value->isString()->notEmpty()->maxLength(1024)->setCode(ErrorMsg::DATA_VALUE_ERROR)->setMsg(ErrorMsg::getComment(ErrorMsg::DATA_VALUE_ERROR));
-
-        //状态 默认1(选填)
-        $this->status->isNumeric()->setDefault(1)->ge(-32768)->le(32767)->setCode(ErrorMsg::DATA_STATUS_ERROR)->setMsg(ErrorMsg::getComment(ErrorMsg::DATA_STATUS_ERROR));
 
         //扩展 (选填)
         $this->extend->isArray()->callback(function ($v) {

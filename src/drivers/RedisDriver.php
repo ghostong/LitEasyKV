@@ -51,20 +51,23 @@ class RedisDriver implements DriverInterface
         $dataMapper->update_time = date("Y-m-d H:i:s");
         $infoKey = self::dataKey($dataMapper->topic->value(), $dataMapper->key->value(), $dataMapper->value->value());
         $topicKeyKey = self::topicKeyListKey($dataMapper->topic->value(), $dataMapper->key->value());
-        self::connect()->set($infoKey, json_encode($dataMapper->toArray()));
+        self::connect()->set($infoKey, DataConvert::redisEncode($dataMapper->toArray()));
         self::connect()->zAdd($topicKeyKey, $dataMapper->weight->value(), $infoKey);
         return true;
     }
 
     public static function modify(DataMapper $dataMapper, $extendAppend) {
+        $info = self::get($dataMapper->topic->value(), $dataMapper->key->value(), $dataMapper->value->value());
         if ($extendAppend) {
-            $info = self::get($dataMapper->topic->value(), $dataMapper->key->value(), $dataMapper->value->value());
             $dataMapper->extend = array_merge($info->extend->value(), $dataMapper->extend->value());
+        } elseif (is_null($dataMapper->extend->value())) {
+            $dataMapper->extend = $info->extend->value();
         }
         $dataMapper->update_time = date("Y-m-d H:i:s");
+        $dataMapper->create_time = $info->create_time->value();
         $infoKey = self::dataKey($dataMapper->topic->value(), $dataMapper->key->value(), $dataMapper->value->value());
         $topicKeyKey = self::topicKeyListKey($dataMapper->topic->value(), $dataMapper->key->value());
-        self::connect()->set($infoKey, json_encode($dataMapper->toArray()));
+        self::connect()->set($infoKey, DataConvert::redisEncode() ($dataMapper->toArray()));
         self::connect()->zAdd($topicKeyKey, $dataMapper->weight->value(), $infoKey);
         return true;
     }
@@ -73,7 +76,7 @@ class RedisDriver implements DriverInterface
         $infoKey = self::dataKey($topic, $key, $value);
         $info = self::connect()->get($infoKey);
         if ($info) {
-            return new DataMapper(json_decode($info, true));
+            return DataConvert::redisDecode($info);
         } else {
             return null;
         }
@@ -88,7 +91,6 @@ class RedisDriver implements DriverInterface
     }
 
     public static function select(SelectMapper $selectMapper) {
-        $status = $selectMapper->status->value();
         $topicKeyKey = self::topicKeyListKey($selectMapper->topic->value(), $selectMapper->key->value());
         if (SelectConst::ORDER_SCENE_ASC === $selectMapper->order_scene->value()) {
             $dataKeys = self::connect()->zRangeByScore($topicKeyKey, '-inf', '+inf', []);
@@ -97,7 +99,7 @@ class RedisDriver implements DriverInterface
         }
         $data = self::connect()->mget($dataKeys);
         return array_map(function ($v) {
-            return new DataMapper(json_decode($v, true));
+            return DataConvert::redisDecode($v);
         }, $data);
     }
 
