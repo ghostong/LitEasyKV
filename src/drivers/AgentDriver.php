@@ -91,7 +91,7 @@ class AgentDriver
             return [];
         }
         if (RedisDriver::isEnable()) {
-
+            return RedisDriver::select($selectMapper);
         }
         if (MySQLDriver::isEnable()) {
             return MySQLDriver::select($selectMapper);

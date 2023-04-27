@@ -3,6 +3,7 @@
 namespace Lit\EasyKv\drivers;
 
 use Lit\EasyKv\mappers\DataMapper;
+use Lit\EasyKv\mappers\SelectMapper;
 
 interface DriverInterface
 {
@@ -20,5 +21,7 @@ interface DriverInterface
     public static function get($topic, $key, $value);
 
     public static function delete($topic, $key, $value);
+
+    public static function select(SelectMapper $selectMapper);
 
 }

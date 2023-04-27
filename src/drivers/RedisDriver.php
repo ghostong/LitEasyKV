@@ -2,8 +2,10 @@
 
 namespace Lit\EasyKv\drivers;
 
+use Lit\EasyKv\constants\SelectConst;
 use Lit\EasyKv\mappers\DataMapper;
 use Lit\EasyKv\mappers\RedisConfigMapper;
+use Lit\EasyKv\mappers\SelectMapper;
 use Lit\EasyKv\utils\DataConvert;
 
 class RedisDriver implements DriverInterface
@@ -83,6 +85,20 @@ class RedisDriver implements DriverInterface
         self::connect()->del($infoKey);
         self::connect()->zRem($topicKeyKey, $infoKey);
         return true;
+    }
+
+    public static function select(SelectMapper $selectMapper) {
+        $status = $selectMapper->status->value();
+        $topicKeyKey = self::topicKeyListKey($selectMapper->topic->value(), $selectMapper->key->value());
+        if (SelectConst::ORDER_SCENE_ASC === $selectMapper->order_scene->value()) {
+            $dataKeys = self::connect()->zRangeByScore($topicKeyKey, '-inf', '+inf', []);
+        } else {
+            $dataKeys = self::connect()->zRevRangeByScore($topicKeyKey, '+inf', '-inf', []);
+        }
+        $data = self::connect()->mget($dataKeys);
+        return array_map(function ($v) {
+            return new DataMapper(json_decode($v, true));
+        }, $data);
     }
 
     private static function dataKey($topic, $key, $value) {
