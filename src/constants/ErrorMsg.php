@@ -26,9 +26,9 @@ use Lit\Utils\LiConst;
  * @value("DATA_WEIGHT_ERROR","用户自定义权重错误")
  * @value("DATA_ALREADY_EXISTS","数据已经存在")
  *
- * @value("SELECT_ORDER_BY_ERROR","排序字段必须在白名单之内")
  * @value("SELECT_ORDER_SCENE_ERROR","排序方式必须在白名单之内")
- *
+ * @value("SELECT_PAGE_ERROR","页码错误")
+ * @value("SELECT_PAGE_SIZE_ERROR","每页条数错误")
  */
 class ErrorMsg extends LiConst
 {
@@ -54,5 +54,7 @@ class ErrorMsg extends LiConst
     const DATA_ALREADY_EXISTS = 10208; //数据已经存在
 
     const SELECT_ORDER_SCENE_ERROR = 10301;//排序方式必须在白名单之内
+    const SELECT_PAGE_ERROR = 10302;//页码错误
+    const SELECT_PAGE_SIZE_ERROR = 10303;//每页条数错误
 
 }

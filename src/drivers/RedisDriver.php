@@ -92,15 +92,22 @@ class RedisDriver implements DriverInterface
 
     public static function select(SelectMapper $selectMapper) {
         $topicKeyKey = self::topicKeyListKey($selectMapper->topic->value(), $selectMapper->key->value());
+        $option = [
+            'limit' => [
+                ($selectMapper->pageNum->value() - 1) * $selectMapper->pageSize->value(),
+                $selectMapper->pageSize->value()]
+        ];
+
         if (SelectConst::ORDER_SCENE_ASC === $selectMapper->order_scene->value()) {
-            $dataKeys = self::connect()->zRangeByScore($topicKeyKey, '-inf', '+inf', []);
+            $dataKeys = self::connect()->zRangeByScore($topicKeyKey, '-inf', '+inf', $option);
         } else {
-            $dataKeys = self::connect()->zRevRangeByScore($topicKeyKey, '+inf', '-inf', []);
+            $dataKeys = self::connect()->zRevRangeByScore($topicKeyKey, '+inf', '-inf', $option);
         }
+
         $data = self::connect()->mget($dataKeys);
-        return array_map(function ($v) {
-            return DataConvert::redisDecode($v);
-        }, $data);
+
+        $total = self::connect()->zCard($topicKeyKey);
+        return DataConvert::redisSelectResult($data, $total, $selectMapper->pageNum->value(), $selectMapper->pageSize->value());
     }
 
     private static function dataKey($topic, $key, $value) {

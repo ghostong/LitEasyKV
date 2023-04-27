@@ -110,12 +110,18 @@ class MySQLDriver implements DriverInterface
     public static function select(SelectMapper $selectMapper) {
         $topicId = DataConvert::fieldEncode($selectMapper->topic->value());
         $keyId = DataConvert::fieldEncode($selectMapper->key->value());
+        $offset = ($selectMapper->pageNum->value() - 1) * $selectMapper->pageSize->value();
+        $pageSize = $selectMapper->pageSize->value();
         $scene = $selectMapper->order_scene->value();
-        $sql = "select * from `easy_kv` where `topic_id` = '{$topicId}' and `key_id` = '{$keyId}' {$where} order by `weight` {$scene}";
+
+        $sql = "select * from `easy_kv` where `topic_id` = '{$topicId}' and `key_id` = '{$keyId}' order by `weight` {$scene} limit {$offset},{$pageSize}";
         $query = self::connect()->query($sql);
         $data = $query->fetchAll(\PDO::FETCH_ASSOC);
-        return array_map(function ($v) {
-            return DataConvert::dbDecode($v);
-        }, $data);
+
+        $countSql = "select count(*) as number from `easy_kv` where `topic_id` = '{$topicId}' and `key_id` = '{$keyId}'";
+        $query = self::connect()->query($countSql);
+        $count = $query->fetch(\PDO::FETCH_ASSOC);
+
+        return DataConvert::dbSelectResult($data, $count["number"], $selectMapper->pageNum->value(), $selectMapper->pageSize->value());
     }
 }

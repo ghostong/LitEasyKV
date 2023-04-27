@@ -80,4 +80,42 @@ class DataConvert
         return !empty($matches);
     }
 
+    /**
+     * redis 查询结果 格式化
+     * @date 2023/4/27
+     * @param $data
+     * @param $total
+     * @param $page
+     * @param $pageSize
+     * @return array
+     * @author litong
+     */
+    public static function redisSelectResult($data, $total, $page, $pageSize) {
+        $data = array_map(function ($v) {
+            return self::redisDecode($v);
+        }, $data);
+        return self::selectResult($data, $total, $page, $pageSize);
+    }
+
+    /**
+     * 数据库查询结果格式化
+     * @date 2023/4/27
+     * @param $data
+     * @param $total
+     * @param $page
+     * @param $pageSize
+     * @return array
+     * @author litong
+     */
+    public static function dbSelectResult($data, $total, $page, $pageSize) {
+        $data = array_map(function ($v) {
+            return self::dbDecode($v);
+        }, $data);
+        return self::selectResult($data, $total, $page, $pageSize);
+    }
+
+    protected static function selectResult($data, $total, $page, $pageSize) {
+        return ["list" => $data, "page_num" => $page, "page_size" => $pageSize, "total" => $total, "last_page" => ceil($total / $pageSize)];
+    }
+
 }
