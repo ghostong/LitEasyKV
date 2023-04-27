@@ -96,5 +96,6 @@ class AgentDriver
         if (MySQLDriver::isEnable()) {
             return MySQLDriver::select($selectMapper);
         }
+        return [];
     }
 }

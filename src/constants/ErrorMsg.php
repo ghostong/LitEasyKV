@@ -17,9 +17,9 @@ use Lit\Utils\LiConst;
  * @value("MYSQL_PASSWORD_ERROR","需配置mysql密码")
  * @value("MYSQL_DATABASE_ERROR","需配置mysql数据库名")
  *
- * @value("DATA_TOPIC_ERROR","topic 错误, 长度应为 1-64 个字符")
- * @value("DATA_KEY_ERROR","key 错误, 长度应为 1-64 个字符")
- * @value("DATA_VALUE_ERROR","value 错误, 不能为 null, 长度 小于 1024")
+ * @value("DATA_TOPIC_ERROR","topic 错误, 长度应为 1-64 个字符, 只能包含数字 字母 下划线")
+ * @value("DATA_KEY_ERROR","key 错误, 长度应为 1-64 个字符, 只能包含数字 字母 下划线")
+ * @value("DATA_VALUE_ERROR","value 错误, 不能为 null, 长度 小于 1024, 只能包含数字 字母 下划线")
  * @value("DATA_EXTEND_ERROR","extend 错误, 应为数组且 json_encode 后总长度不超过 65535")
  * @value("DATA_CREATE_TIME_ERROR","创建时间错误")
  * @value("DATA_UPDATE_TIME_ERROR","更新时间错误")

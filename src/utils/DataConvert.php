@@ -34,10 +34,24 @@ class DataConvert
         return new DataMapper($data);
     }
 
+    /**
+     * 存储redis编码
+     * @date 2023/4/27
+     * @param $data
+     * @return string
+     * @author litong
+     */
     public static function redisEncode($data) {
         return json_encode($data);
     }
 
+    /**
+     * 存储redis解码
+     * @date 2023/4/27
+     * @param $data
+     * @return DataMapper
+     * @author litong
+     */
     public static function redisDecode($data) {
         $data = json_decode($data, true);
         return new DataMapper($data);
@@ -52,6 +66,18 @@ class DataConvert
      */
     public static function fieldEncode($field) {
         return substr(md5($field), 0, 8);
+    }
+
+    /**
+     * 检查字段是否合法
+     * @date 2023/4/27
+     * @param $field
+     * @return bool
+     * @author litong
+     */
+    public static function checkField($field) {
+        preg_match("/^[a-zA-Z0-9_]+$/", $field, $matches);
+        return !empty($matches);
     }
 
 }

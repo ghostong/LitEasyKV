@@ -3,6 +3,7 @@
 namespace Lit\EasyKv\mappers;
 
 use Lit\EasyKv\constants\ErrorMsg;
+use Lit\EasyKv\utils\DataConvert;
 use Lit\Parameter\V2\Parameter;
 use Lit\Parameter\V2\Types\Types;
 
@@ -21,13 +22,21 @@ class DataMapper extends Parameter
     public function __construct($params = []) {
 
         //主题
-        $this->topic->isString()->notEmpty()->setDefault("default")->minLength(1)->maxLength(64)->setCode(ErrorMsg::DATA_TOPIC_ERROR)->setMsg(ErrorMsg::getComment(ErrorMsg::DATA_TOPIC_ERROR));
+        $this->topic->isString()->notEmpty()->setDefault("default")
+            ->minLength(1)->maxLength(64)->callback(function ($field) {
+                return DataConvert::checkField($field);
+            })->setCode(ErrorMsg::DATA_TOPIC_ERROR)->setMsg(ErrorMsg::getComment(ErrorMsg::DATA_TOPIC_ERROR));
 
         //键
-        $this->key->isString()->notEmpty()->setDefault("default")->minLength(1)->maxLength(64)->setCode(ErrorMsg::DATA_KEY_ERROR)->setMsg(ErrorMsg::getComment(ErrorMsg::DATA_KEY_ERROR));
+        $this->key->isString()->notEmpty()->setDefault("default")
+            ->minLength(1)->maxLength(64)->callback(function ($field) {
+                return DataConvert::checkField($field);
+            })->setCode(ErrorMsg::DATA_KEY_ERROR)->setMsg(ErrorMsg::getComment(ErrorMsg::DATA_KEY_ERROR));
 
         //值
-        $this->value->isString()->notEmpty()->maxLength(1024)->setCode(ErrorMsg::DATA_VALUE_ERROR)->setMsg(ErrorMsg::getComment(ErrorMsg::DATA_VALUE_ERROR));
+        $this->value->isString()->notEmpty()->maxLength(1024)->callback(function ($field) {
+            return DataConvert::checkField($field);
+        })->setCode(ErrorMsg::DATA_VALUE_ERROR)->setMsg(ErrorMsg::getComment(ErrorMsg::DATA_VALUE_ERROR));
 
         //扩展 (选填)
         $this->extend->isArray()->callback(function ($v) {

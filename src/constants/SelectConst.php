@@ -5,8 +5,8 @@ namespace Lit\EasyKv\constants;
 use Lit\Utils\LiConst;
 
 /**
- * @value("ORDER_SCENE_ASC","asc")
- * @value("ORDER_SCENE_DESC","desc")
+ * @value("ORDER_SCENE_ASC","正序")
+ * @value("ORDER_SCENE_DESC","倒序")
  */
 class SelectConst extends LiConst
 {
