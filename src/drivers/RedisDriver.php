@@ -58,6 +58,9 @@ class RedisDriver implements DriverInterface
 
     public static function modify(DataMapper $dataMapper, $extendAppend) {
         $info = self::get($dataMapper->topic->value(), $dataMapper->key->value(), $dataMapper->value->value());
+        if (!$info) {
+            return false;
+        }
         if ($extendAppend) {
             $dataMapper->extend = array_merge($info->extend->value(), $dataMapper->extend->value());
         } elseif (is_null($dataMapper->extend->value())) {
