@@ -115,7 +115,7 @@ class DataConvert
     }
 
     protected static function selectResult($data, $total, $page, $pageSize) {
-        return ["list" => $data, "page_num" => $page, "page_size" => $pageSize, "total" => $total, "last_page" => ceil($total / $pageSize)];
+        return ["list" => $data ?: [], "page_num" => $page, "page_size" => $pageSize, "total" => $total, "last_page" => ceil($total / $pageSize)];
     }
 
 }

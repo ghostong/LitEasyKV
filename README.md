@@ -14,10 +14,12 @@ $mysqlConfig->port = 3306;
 $mysqlConfig->username = "root";
 $mysqlConfig->password = "123456";
 $mysqlConfig->database = "test";
+$mysqlConfig->table = "easy_kv";
 
 $redisConfig = new \Lit\EasyKv\mappers\RedisConfigMapper();
 $redisConfig->host = "utils-redis";
 $redisConfig->port = 6379;
+$redisConfig->prefix = "easy:kv";
 EasyKV::init($mysqlConfig, $redisConfig);
 ````
 

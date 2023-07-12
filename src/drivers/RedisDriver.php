@@ -70,7 +70,7 @@ class RedisDriver implements DriverInterface
         $dataMapper->create_time = $info->create_time->value();
         $infoKey = self::dataKey($dataMapper->topic->value(), $dataMapper->key->value(), $dataMapper->value->value());
         $topicKeyKey = self::topicKeyListKey($dataMapper->topic->value(), $dataMapper->key->value());
-        self::connect()->set($infoKey, DataConvert::redisEncode() ($dataMapper->toArray()));
+        self::connect()->set($infoKey, DataConvert::redisEncode($dataMapper->toArray()));
         self::connect()->zAdd($topicKeyKey, $dataMapper->weight->value(), $infoKey);
         return true;
     }
