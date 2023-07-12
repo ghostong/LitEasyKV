@@ -9,6 +9,7 @@ use Lit\Utils\LiConst;
  * @value("REDIS_PORT_ERROR","需配置redis端口")
  * @value("REDIS_DB_ERROR","需配置redis库序号")
  * @value("REDIS_AUTH_ERROR","需配置redis端口")
+ * @value("REDIS_PREFIX_ERROR","redis key前缀配置错误")
  *
  * @value("MYSQL_HOSTNAME_ERROR","需配置mysql连地址")
  * @value("MYSQL_PORT_ERROR","需配置mysql端口")
@@ -16,6 +17,7 @@ use Lit\Utils\LiConst;
  * @value("MYSQL_USERNAME_ERROR","需配置mysql用户名")
  * @value("MYSQL_PASSWORD_ERROR","需配置mysql密码")
  * @value("MYSQL_DATABASE_ERROR","需配置mysql数据库名")
+ * @value("MYSQL_TABLE_ERROR","配置mysql表名错误")
  *
  * @value("DATA_TOPIC_ERROR","topic 错误, 长度应为 1-64 个字符, 只能包含数字 字母 下划线")
  * @value("DATA_KEY_ERROR","key 错误, 长度应为 1-64 个字符, 只能包含数字 字母 下划线")
@@ -36,6 +38,7 @@ class ErrorMsg extends LiConst
     const REDIS_PORT_ERROR = 10002; //需配置redis端口
     const REDIS_DB_ERROR = 10003; //需配置redis库序号
     const REDIS_AUTH_ERROR = 10004; //需配置redis端口
+    const REDIS_PREFIX_ERROR = 10006; //redis key 前缀配置错误
 
     const MYSQL_HOSTNAME_ERROR = 10101; //需配置mysql连地址
     const MYSQL_PORT_ERROR = 10102; //需配置mysql端口
@@ -43,6 +46,7 @@ class ErrorMsg extends LiConst
     const MYSQL_USERNAME_ERROR = 10104; //需配置mysql用户名
     const MYSQL_PASSWORD_ERROR = 10105; //需配置mysql密码
     const MYSQL_DATABASE_ERROR = 10106; //需配置mysql数据库名
+    const MYSQL_TABLE_ERROR = 10107; //配置mysql表名错误
 
     const DATA_TOPIC_ERROR = 10201; //topic 错误, 长度应为 1-64 个字符
     const DATA_KEY_ERROR = 10202; //key 错误, 长度应为 1-64 个字符

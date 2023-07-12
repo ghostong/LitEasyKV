@@ -48,7 +48,7 @@ class MySQLDriver implements DriverInterface
         $dataMapper->create_time = date("Y-m-d H:i:s");
         $dataMapper->update_time = date("Y-m-d H:i:s");
         $data = DataConvert::dbEncode($dataMapper->toArray());
-        $sql = LiString::array2sql(array_filter($data), "easy_kv");
+        $sql = LiString::array2sql(array_filter($data), self::$config->table->value());
         try {
             self::connect()->query($sql);
             return true;
@@ -79,7 +79,7 @@ class MySQLDriver implements DriverInterface
             return "`{$k}` = '{$v}'";
         }, $data, array_keys($data));
         $setStr = implode(',', $fields);
-        $sql = "update `easy_kv` set {$setStr} where `topic_id` = '{$topicId}' and `key_id` = '{$keyId}' and `value_id` = '{$valueId}' limit 1";
+        $sql = "update `" . self::$config->table->value() . "` set {$setStr} where `topic_id` = '{$topicId}' and `key_id` = '{$keyId}' and `value_id` = '{$valueId}' limit 1";
         $query = self::connect()->query($sql);
         return $query->rowCount() > 0;
     }
@@ -88,7 +88,7 @@ class MySQLDriver implements DriverInterface
         $topicId = DataConvert::fieldEncode($topic);
         $keyId = DataConvert::fieldEncode($key);
         $valueId = DataConvert::fieldEncode($value);
-        $sql = "select * from `easy_kv` where `topic_id` = '{$topicId}' and `key_id` = '{$keyId}' and `value_id` = '{$valueId}' limit 1";
+        $sql = "select * from `" . self::$config->table->value() . "` where `topic_id` = '{$topicId}' and `key_id` = '{$keyId}' and `value_id` = '{$valueId}' limit 1";
         $query = self::connect()->query($sql);
         $oneData = $query->fetch(\PDO::FETCH_ASSOC);
         if ($oneData) {
@@ -102,7 +102,7 @@ class MySQLDriver implements DriverInterface
         $topicId = DataConvert::fieldEncode($topic);
         $keyId = DataConvert::fieldEncode($key);
         $valueId = DataConvert::fieldEncode($value);
-        $sql = "delete from `easy_kv` where `topic_id` = '{$topicId}' and `key_id` = '{$keyId}' and `value_id` = '{$valueId}' limit 1";
+        $sql = "delete from `" . self::$config->table->value() . "` where `topic_id` = '{$topicId}' and `key_id` = '{$keyId}' and `value_id` = '{$valueId}' limit 1";
         $query = self::connect()->query($sql);
         return $query->rowCount() > 0;
     }
@@ -114,11 +114,11 @@ class MySQLDriver implements DriverInterface
         $pageSize = $selectMapper->pageSize->value();
         $scene = $selectMapper->order_scene->value();
 
-        $sql = "select * from `easy_kv` where `topic_id` = '{$topicId}' and `key_id` = '{$keyId}' order by `weight` {$scene} limit {$offset},{$pageSize}";
+        $sql = "select * from `" . self::$config->table->value() . "` where `topic_id` = '{$topicId}' and `key_id` = '{$keyId}' order by `weight` {$scene} limit {$offset},{$pageSize}";
         $query = self::connect()->query($sql);
         $data = $query->fetchAll(\PDO::FETCH_ASSOC);
 
-        $countSql = "select count(*) as number from `easy_kv` where `topic_id` = '{$topicId}' and `key_id` = '{$keyId}'";
+        $countSql = "select count(*) as number from `" . self::$config->table->value() . "` where `topic_id` = '{$topicId}' and `key_id` = '{$keyId}'";
         $query = self::connect()->query($countSql);
         $count = $query->fetch(\PDO::FETCH_ASSOC);
 

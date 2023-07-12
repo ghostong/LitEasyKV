@@ -13,6 +13,7 @@ use Lit\Parameter\V2\Types\Types;
  * @property Types $username mysql用户名
  * @property Types $password mysql密码
  * @property Types $database mysql数据库名
+ * @property Types $table mysql数据表名
  */
 class MySQLConfigMapper extends Parameter
 {
@@ -35,6 +36,9 @@ class MySQLConfigMapper extends Parameter
 
         //mysql数据库名
         $this->database->isString()->notEmpty()->setCode(ErrorMsg::MYSQL_DATABASE_ERROR)->setMsg(ErrorMsg::getComment(ErrorMsg::MYSQL_DATABASE_ERROR));
+
+        //mysql数据表
+        $this->table->isString()->notEmpty()->setDefault("easy_kv")->setCode(ErrorMsg::MYSQL_TABLE_ERROR)->setMsg(ErrorMsg::getComment(ErrorMsg::MYSQL_TABLE_ERROR));
 
         //启用快速赋值(非必须)
         parent::__construct($params);

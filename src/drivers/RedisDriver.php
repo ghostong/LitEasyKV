@@ -105,20 +105,16 @@ class RedisDriver implements DriverInterface
         }
 
         $data = self::connect()->mget($dataKeys);
-
         $total = self::connect()->zCard($topicKeyKey);
+
         return DataConvert::redisSelectResult($data, $total, $selectMapper->pageNum->value(), $selectMapper->pageSize->value());
     }
 
     private static function dataKey($topic, $key, $value) {
-        return sprintf("easy:kv:info:%s:%s:%s", DataConvert::fieldEncode($topic), DataConvert::fieldEncode($key), DataConvert::fieldEncode($value));
-    }
-
-    private static function topicListKey($topic, $key, $value) {
-        return sprintf("easy:kv:list:%s", $topic);
+        return sprintf("%s:info:%s:%s:%s", self::$config->prefix->value(), DataConvert::fieldEncode($topic), DataConvert::fieldEncode($key), DataConvert::fieldEncode($value));
     }
 
     private static function topicKeyListKey($topic, $key) {
-        return sprintf("easy:kv:list:%s:%s", $topic, $key);
+        return sprintf("%s:list:%s:%s", self::$config->prefix->value(), $topic, $key);
     }
 }

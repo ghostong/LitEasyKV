@@ -11,6 +11,7 @@ use Lit\Parameter\V2\Types\Types;
  * @property Types $port redis端口
  * @property Types $db redis数据库编号
  * @property Types $auth redis密码
+ * @property Types $prefix redis key前缀
  */
 class RedisConfigMapper extends Parameter
 {
@@ -27,6 +28,9 @@ class RedisConfigMapper extends Parameter
 
         //redis密码
         $this->auth->isString()->setCode(ErrorMsg::REDIS_AUTH_ERROR)->setMsg(ErrorMsg::getComment(ErrorMsg::REDIS_AUTH_ERROR));
+
+        //redis key前缀
+        $this->prefix->isString()->setDefault("easy:kv")->setCode(ErrorMsg::REDIS_PREFIX_ERROR)->setMsg(ErrorMsg::getComment(ErrorMsg::REDIS_PREFIX_ERROR));
 
         //启用快速赋值(非必须)
         parent::__construct($params);
