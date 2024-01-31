@@ -94,9 +94,9 @@ class EasyKV
     public static function get($topic, $key, $value) {
         $mapper = AgentDriver::get($topic, $key, $value);
         if ($mapper) {
-            self::setCodeMsg(AgentDriver::getCode(), AgentDriver::getMsg());
             return $mapper;
         } else {
+            self::setCodeMsg(AgentDriver::getCode(), AgentDriver::getMsg());
             return null;
         }
     }
@@ -109,7 +109,13 @@ class EasyKV
      * @author litong
      */
     public static function select(SelectMapper $selectMapper) {
-        return AgentDriver::select($selectMapper);
+        $selectList = AgentDriver::select($selectMapper);
+        if (!empty($selectList)) {
+            return $selectList;
+        } else {
+            self::setCodeMsg(AgentDriver::getCode(), AgentDriver::getMsg());
+            return [];
+        }
     }
 
 }
