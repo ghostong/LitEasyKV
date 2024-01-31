@@ -26,7 +26,7 @@ class MySQLConfigMapper extends Parameter
         $this->port->isNumeric()->setDefault(3306)->setCode(ErrorMsg::MYSQL_PORT_ERROR)->setMsg(ErrorMsg::getComment(ErrorMsg::MYSQL_PORT_ERROR));
 
         //mysql字符集
-        $this->charset->isNumeric()->notEmpty()->setDefault("utf8mb4")->setCode(ErrorMsg::MYSQL_CHARSET_ERROR)->setMsg(ErrorMsg::getComment(ErrorMsg::MYSQL_CHARSET_ERROR));
+        $this->charset->isString()->notEmpty()->setDefault("utf8mb4")->setCode(ErrorMsg::MYSQL_CHARSET_ERROR)->setMsg(ErrorMsg::getComment(ErrorMsg::MYSQL_CHARSET_ERROR));
 
         //mysql用户名
         $this->username->isString()->setCode(ErrorMsg::MYSQL_USERNAME_ERROR)->setMsg(ErrorMsg::getComment(ErrorMsg::MYSQL_USERNAME_ERROR));
