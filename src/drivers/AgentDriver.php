@@ -98,4 +98,23 @@ class AgentDriver
         }
         return [];
     }
+
+
+    public static function count($topic, $key) {
+        if (RedisDriver::isEnable()) {
+            if ($data = RedisDriver::count($topic, $key)) {
+                return $data;
+            } else {
+                self::setCodeMsg(MySQLDriver::getCode(), MySQLDriver::getMsg());
+            }
+        }
+        if (MySQLDriver::isEnable()) {
+            if ($data = MySQLDriver::count($topic, $key)) {
+                return $data;
+            } else {
+                self::setCodeMsg(MySQLDriver::getCode(), MySQLDriver::getMsg());
+            }
+        }
+        return null;
+    }
 }

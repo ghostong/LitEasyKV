@@ -118,4 +118,16 @@ class EasyKV
         }
     }
 
+    /**
+     * 获取组内成员总数
+     * @date 2024/1/31
+     * @param $topic
+     * @param $key
+     * @return int
+     * @author litong
+     */
+    public static function count($topic, $key) {
+        return AgentDriver::count($topic, $key);
+    }
+
 }

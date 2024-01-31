@@ -108,9 +108,14 @@ class RedisDriver implements DriverInterface
         }
 
         $data = self::connect()->mget($dataKeys);
-        $total = self::connect()->zCard($topicKeyKey);
+        $total = self::count($selectMapper->topic->value(), $selectMapper->key->value());
 
         return DataConvert::redisSelectResult($data, $total, $selectMapper->pageNum->value(), $selectMapper->pageSize->value());
+    }
+
+    public static function count($topic, $key) {
+        $topicKeyKey = self::topicKeyListKey($topic, $key);
+        return self::connect()->zCard($topicKeyKey) ?: 0;
     }
 
     private static function dataKey($topic, $key, $value) {

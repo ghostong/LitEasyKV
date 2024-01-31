@@ -118,10 +118,16 @@ class MySQLDriver implements DriverInterface
         $query = self::connect()->query($sql);
         $data = $query->fetchAll(\PDO::FETCH_ASSOC);
 
+        $count = self::count($selectMapper->topic->value(), $selectMapper->key->value());
+        return DataConvert::dbSelectResult($data, $count, $selectMapper->pageNum->value(), $selectMapper->pageSize->value());
+    }
+
+    public static function count($topic, $key) {
+        $topicId = DataConvert::fieldEncode($topic);
+        $keyId = DataConvert::fieldEncode($key);
         $countSql = "select count(*) as number from `" . self::$config->table->value() . "` where `topic_id` = '{$topicId}' and `key_id` = '{$keyId}'";
         $query = self::connect()->query($countSql);
         $count = $query->fetch(\PDO::FETCH_ASSOC);
-
-        return DataConvert::dbSelectResult($data, $count["number"], $selectMapper->pageNum->value(), $selectMapper->pageSize->value());
+        return $count["number"] ? intval($count["number"]) : 0;
     }
 }
