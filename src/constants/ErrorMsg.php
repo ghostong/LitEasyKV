@@ -8,7 +8,7 @@ use Lit\Utils\LiConst;
  * @value("REDIS_HOST_ERROR","需配置redis连地址")
  * @value("REDIS_PORT_ERROR","需配置redis端口")
  * @value("REDIS_DB_ERROR","需配置redis库序号")
- * @value("REDIS_AUTH_ERROR","需配置redis端口")
+ * @value("REDIS_AUTH_ERROR","需配置redis身份认证")
  * @value("REDIS_PREFIX_ERROR","redis key前缀配置错误")
  *
  * @value("MYSQL_HOSTNAME_ERROR","需配置mysql连地址")
@@ -37,7 +37,7 @@ class ErrorMsg extends LiConst
     const REDIS_HOST_ERROR = 10001; //需配置redis连地址
     const REDIS_PORT_ERROR = 10002; //需配置redis端口
     const REDIS_DB_ERROR = 10003; //需配置redis库序号
-    const REDIS_AUTH_ERROR = 10004; //需配置redis端口
+    const REDIS_AUTH_ERROR = 10004; //需配置redis身份认证
     const REDIS_PREFIX_ERROR = 10006; //redis key 前缀配置错误
 
     const MYSQL_HOSTNAME_ERROR = 10101; //需配置mysql连地址
