@@ -42,6 +42,9 @@ class RedisDriver implements DriverInterface
             if (!is_null(self::$config->auth->value())) {
                 self::$dbConnect->auth(self::$config->auth->value());
             }
+            if (!is_null(self::$config->db->value())) {
+                self::$dbConnect->select(self::$config->db->value());
+            }
         }
         return self::$dbConnect;
     }
