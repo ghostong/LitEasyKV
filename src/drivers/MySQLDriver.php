@@ -119,7 +119,7 @@ class MySQLDriver implements DriverInterface
         $data = $query->fetchAll(\PDO::FETCH_ASSOC);
 
         $count = self::count($selectMapper->topic->value(), $selectMapper->key->value());
-        return DataConvert::dbSelectResult($data, $count, $selectMapper->pageNum->value(), $selectMapper->pageSize->value());
+        return DataConvert::dbSelectResult($data ?: [], $count, $selectMapper->pageNum->value(), $selectMapper->pageSize->value());
     }
 
     public static function count($topic, $key) {
