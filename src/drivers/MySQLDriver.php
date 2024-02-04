@@ -48,10 +48,18 @@ class MySQLDriver implements DriverInterface
         $dataMapper->create_time = date("Y-m-d H:i:s");
         $dataMapper->update_time = date("Y-m-d H:i:s");
         $data = DataConvert::dbEncode($dataMapper->toArray());
-        $sql = LiString::array2sql(array_filter($data), self::$config->table->value());
+        $data = array_filter($data);
+        $sql = LiString::array2sql($data, self::$config->table->value())
+            . " ON DUPLICATE KEY UPDATE "
+            . LiString::array2DuplicateKeySql(['extend', 'weight', 'update_time'], []);
         try {
-            self::connect()->query($sql);
-            return true;
+            $conn = self::connect();
+            $conn->query($sql);
+            if ($conn->errorCode() == 0) {
+                return true;
+            } else {
+                throw new \Exception($conn->errorCode(), $conn->errorInfo()[2]);
+            }
         } catch (\Exception $exception) {
             if (stripos($exception->getMessage(), "duplicate entry") !== false) {
                 self::setCodeMsg(ErrorMsg::DATA_ALREADY_EXISTS, ErrorMsg::getComment(ErrorMsg::DATA_ALREADY_EXISTS));
