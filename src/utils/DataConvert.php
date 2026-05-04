@@ -76,7 +76,7 @@ class DataConvert
      * @author litong
      */
     public static function checkField($field) {
-        preg_match("/^[a-zA-Z0-9_]+$/", $field, $matches);
+        preg_match("/^[a-zA-Z0-9_-]+$/", $field, $matches);
         return !empty($matches);
     }
 
