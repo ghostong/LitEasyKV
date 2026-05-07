@@ -20,11 +20,13 @@ class RedisDriver implements DriverInterface
     protected static $useRedis = false;
     protected static $dbConnect = null;
 
-    public static function isEnable() {
+    public static function isEnable()
+    {
         return self::$useRedis;
     }
 
-    public static function config(RedisConfigMapper $redisConfig = null) {
+    public static function config(RedisConfigMapper $redisConfig = null)
+    {
         self::$config = $redisConfig;
         self::$useRedis = !is_null($redisConfig);
     }
@@ -35,7 +37,8 @@ class RedisDriver implements DriverInterface
      * @return \Redis
      * @author litong
      */
-    public static function connect() {
+    public static function connect()
+    {
         if (!self::$dbConnect) {
             self::$dbConnect = new \Redis();
             self::$dbConnect->connect(self::$config->host->value(), self::$config->port->value());
@@ -49,7 +52,8 @@ class RedisDriver implements DriverInterface
         return self::$dbConnect;
     }
 
-    public static function add(DataMapper $dataMapper) {
+    public static function add(DataMapper $dataMapper)
+    {
         $dataMapper->create_time = date("Y-m-d H:i:s");
         $dataMapper->update_time = date("Y-m-d H:i:s");
         $infoKey = self::dataKey($dataMapper->topic->value(), $dataMapper->key->value(), $dataMapper->value->value());
@@ -59,7 +63,8 @@ class RedisDriver implements DriverInterface
         return true;
     }
 
-    public static function modify(DataMapper $dataMapper, $extendAppend) {
+    public static function modify(DataMapper $dataMapper, $extendAppend)
+    {
         $info = self::get($dataMapper->topic->value(), $dataMapper->key->value(), $dataMapper->value->value());
         if (!$info) {
             return false;
@@ -78,7 +83,8 @@ class RedisDriver implements DriverInterface
         return true;
     }
 
-    public static function get($topic, $key, $value) {
+    public static function get($topic, $key, $value)
+    {
         $infoKey = self::dataKey($topic, $key, $value);
         $info = self::connect()->get($infoKey);
         if ($info) {
@@ -88,7 +94,8 @@ class RedisDriver implements DriverInterface
         }
     }
 
-    public static function delete($topic, $key, $value) {
+    public static function delete($topic, $key, $value)
+    {
         $infoKey = self::dataKey($topic, $key, $value);
         $topicKeyKey = self::topicKeyListKey($topic, $key);
         self::connect()->del($infoKey);
@@ -96,7 +103,8 @@ class RedisDriver implements DriverInterface
         return true;
     }
 
-    public static function select(SelectMapper $selectMapper) {
+    public static function select(SelectMapper $selectMapper)
+    {
         $topicKeyKey = self::topicKeyListKey($selectMapper->topic->value(), $selectMapper->key->value());
         $option = [
             'limit' => [
@@ -110,22 +118,25 @@ class RedisDriver implements DriverInterface
             $dataKeys = self::connect()->zRevRangeByScore($topicKeyKey, '+inf', '-inf', $option);
         }
 
-        $data = self::connect()->mget($dataKeys);
+        $data = self::connect()->mget($dataKeys) ?: [];
         $total = self::count($selectMapper->topic->value(), $selectMapper->key->value());
 
         return DataConvert::redisSelectResult($data ?: [], $total, $selectMapper->pageNum->value(), $selectMapper->pageSize->value());
     }
 
-    public static function count($topic, $key) {
+    public static function count($topic, $key)
+    {
         $topicKeyKey = self::topicKeyListKey($topic, $key);
         return self::connect()->zCard($topicKeyKey) ?: 0;
     }
 
-    private static function dataKey($topic, $key, $value) {
+    private static function dataKey($topic, $key, $value)
+    {
         return sprintf("%s:info:%s:%s:%s", self::$config->prefix->value(), DataConvert::fieldEncode($topic), DataConvert::fieldEncode($key), DataConvert::fieldEncode($value));
     }
 
-    private static function topicKeyListKey($topic, $key) {
+    private static function topicKeyListKey($topic, $key)
+    {
         return sprintf("%s:list:%s:%s", self::$config->prefix->value(), $topic, $key);
     }
 }
