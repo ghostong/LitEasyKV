@@ -50,10 +50,12 @@ class AgentDriver
 
         if (RedisDriver::isEnable() && !RedisDriver::modify($dataMapper, $extendAppend)) {
             self::setCodeMsg(RedisDriver::getCode(), RedisDriver::getMsg());
+            return false;
         }
 
         if (MySQLDriver::isEnable() && !MySQLDriver::modify($dataMapper, $extendAppend)) {
             self::setCodeMsg(MySQLDriver::getCode(), MySQLDriver::getMsg());
+            return false;
         }
         return true;
     }
@@ -61,9 +63,11 @@ class AgentDriver
     public static function delete($topic, $key, $value) {
         if (RedisDriver::isEnable() && !RedisDriver::delete($topic, $key, $value)) {
             self::setCodeMsg(RedisDriver::getCode(), RedisDriver::getMsg());
+            return false;
         }
         if (MySQLDriver::isEnable() && !MySQLDriver::delete($topic, $key, $value)) {
             self::setCodeMsg(MySQLDriver::getCode(), MySQLDriver::getMsg());
+            return false;
         }
         return true;
     }
@@ -116,6 +120,6 @@ class AgentDriver
                 self::setCodeMsg(MySQLDriver::getCode(), MySQLDriver::getMsg());
             }
         }
-        return null;
+        return 0;
     }
 }
