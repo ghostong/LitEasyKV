@@ -8,7 +8,6 @@ use Lit\EasyKv\mappers\MySQLConfigMapper;
 use Lit\EasyKv\mappers\SelectMapper;
 use Lit\EasyKv\utils\DataConvert;
 use Lit\Utils\LiArray;
-use Lit\Utils\LiString;
 
 class MySQLDriver implements DriverInterface
 {
@@ -48,18 +47,20 @@ class MySQLDriver implements DriverInterface
         $dataMapper->create_time = date("Y-m-d H:i:s");
         $dataMapper->update_time = date("Y-m-d H:i:s");
         $data = DataConvert::dbEncode($dataMapper->toArray());
-        $data = array_filter($data);
-        $sql = LiString::array2sql($data, self::$config->table->value())
+        $data = self::filterNull($data);
+        $fields = array_keys($data);
+        $columns = array_map(function ($field) {
+            return self::quoteIdentifier($field);
+        }, $fields);
+        $placeholders = array_map(function ($field) {
+            return ':' . $field;
+        }, $fields);
+        $sql = "insert into " . self::tableName() . " (" . implode(',', $columns) . ") values (" . implode(',', $placeholders) . ")"
             . " ON DUPLICATE KEY UPDATE "
-            . LiString::array2DuplicateKeySql(['extend', 'weight', 'update_time'], []);
+            . "`extend` = VALUES(`extend`), `weight` = VALUES(`weight`), `update_time` = VALUES(`update_time`)";
         try {
-            $conn = self::connect();
-            $conn->query($sql);
-            if ($conn->errorCode() == 0) {
-                return true;
-            } else {
-                throw new \Exception($conn->errorCode(), $conn->errorInfo()[2]);
-            }
+            $stmt = self::connect()->prepare($sql);
+            return self::execute($stmt, $data);
         } catch (\Exception $exception) {
             if (stripos($exception->getMessage(), "duplicate entry") !== false) {
                 self::setCodeMsg(ErrorMsg::DATA_ALREADY_EXISTS, ErrorMsg::getComment(ErrorMsg::DATA_ALREADY_EXISTS));
@@ -72,32 +73,35 @@ class MySQLDriver implements DriverInterface
 
     public static function modify(DataMapper $dataMapper, $extendAppend) {
         $info = self::get($dataMapper->topic->value(), $dataMapper->key->value(), $dataMapper->value->value());
+        if (!$info) {
+            self::setCodeMsg(ErrorMsg::DATA_NOT_EXISTS, ErrorMsg::getComment(ErrorMsg::DATA_NOT_EXISTS));
+            return false;
+        }
+        $newExtend = $dataMapper->extend->value();
         if ($extendAppend) {
-            $dataMapper->extend = array_merge($info->extend->value(), $dataMapper->extend->value());
-        } elseif (is_null($dataMapper->extend->value())) {
+            $dataMapper->extend = is_null($newExtend) ? $info->extend->value() : array_merge($info->extend->value(), $newExtend);
+        } elseif (is_null($newExtend)) {
             $dataMapper->extend = $info->extend->value();
         }
         $dataMapper->update_time = date("Y-m-d H:i:s");
         $data = DataConvert::dbEncode($dataMapper->getAssigned());
-        $data = array_filter($data);
-        $topicId = LiArray::get($data, 'topic_id', null, true);
-        $keyId = LiArray::get($data, 'key_id', null, true);
-        $valueId = LiArray::get($data, 'value_id', null, true);
-        $fields = array_map(function ($v, $k) {
-            return "`{$k}` = '{$v}'";
-        }, $data, array_keys($data));
-        $setStr = implode(',', $fields);
-        $sql = "update `" . self::$config->table->value() . "` set {$setStr} where `topic_id` = '{$topicId}' and `key_id` = '{$keyId}' and `value_id` = '{$valueId}' limit 1";
-        $query = self::connect()->query($sql);
-        return $query->rowCount() > 0;
+        $data = self::filterNull($data);
+        $updateData = LiArray::getValues($data, [], ['topic_id', 'key_id', 'value_id']);
+        $fields = array_map(function ($field) {
+            return self::quoteIdentifier($field) . " = :" . $field;
+        }, array_keys($updateData));
+        $sql = "update " . self::tableName() . " set " . implode(',', $fields) . " where `topic_id` = :topic_id and `key_id` = :key_id and `value_id` = :value_id limit 1";
+        $stmt = self::connect()->prepare($sql);
+        return self::execute($stmt, $data) && $stmt->rowCount() > 0;
     }
 
     public static function get($topic, $key, $value) {
         $topicId = DataConvert::fieldEncode($topic);
         $keyId = DataConvert::fieldEncode($key);
         $valueId = DataConvert::fieldEncode($value);
-        $sql = "select * from `" . self::$config->table->value() . "` where `topic_id` = '{$topicId}' and `key_id` = '{$keyId}' and `value_id` = '{$valueId}' limit 1";
-        $query = self::connect()->query($sql);
+        $sql = "select * from " . self::tableName() . " where `topic_id` = :topic_id and `key_id` = :key_id and `value_id` = :value_id limit 1";
+        $query = self::connect()->prepare($sql);
+        self::execute($query, ['topic_id' => $topicId, 'key_id' => $keyId, 'value_id' => $valueId]);
         $oneData = $query->fetch(\PDO::FETCH_ASSOC);
         if ($oneData) {
             return DataConvert::dbDecode($oneData);
@@ -110,9 +114,9 @@ class MySQLDriver implements DriverInterface
         $topicId = DataConvert::fieldEncode($topic);
         $keyId = DataConvert::fieldEncode($key);
         $valueId = DataConvert::fieldEncode($value);
-        $sql = "delete from `" . self::$config->table->value() . "` where `topic_id` = '{$topicId}' and `key_id` = '{$keyId}' and `value_id` = '{$valueId}' limit 1";
-        $query = self::connect()->query($sql);
-        return $query->rowCount() > 0;
+        $sql = "delete from " . self::tableName() . " where `topic_id` = :topic_id and `key_id` = :key_id and `value_id` = :value_id limit 1";
+        $query = self::connect()->prepare($sql);
+        return self::execute($query, ['topic_id' => $topicId, 'key_id' => $keyId, 'value_id' => $valueId]) && $query->rowCount() > 0;
     }
 
     public static function select(SelectMapper $selectMapper) {
@@ -122,8 +126,16 @@ class MySQLDriver implements DriverInterface
         $pageSize = $selectMapper->pageSize->value();
         $scene = $selectMapper->order_scene->value();
 
-        $sql = "select * from `" . self::$config->table->value() . "` where `topic_id` = '{$topicId}' and `key_id` = '{$keyId}' order by `weight` {$scene} limit {$offset},{$pageSize}";
-        $query = self::connect()->query($sql);
+        $sql = "select * from " . self::tableName() . " where `topic_id` = :topic_id and `key_id` = :key_id order by `weight` {$scene} limit :offset,:page_size";
+        $query = self::connect()->prepare($sql);
+        $query->bindValue(':topic_id', $topicId);
+        $query->bindValue(':key_id', $keyId);
+        $query->bindValue(':offset', $offset, \PDO::PARAM_INT);
+        $query->bindValue(':page_size', $pageSize, \PDO::PARAM_INT);
+        if (!$query->execute()) {
+            $error = $query->errorInfo();
+            self::setCodeMsg($error[0], isset($error[2]) ? $error[2] : 'SQL execute failed');
+        }
         $data = $query->fetchAll(\PDO::FETCH_ASSOC);
 
         $count = self::count($selectMapper->topic->value(), $selectMapper->key->value());
@@ -133,9 +145,36 @@ class MySQLDriver implements DriverInterface
     public static function count($topic, $key) {
         $topicId = DataConvert::fieldEncode($topic);
         $keyId = DataConvert::fieldEncode($key);
-        $countSql = "select count(*) as number from `" . self::$config->table->value() . "` where `topic_id` = '{$topicId}' and `key_id` = '{$keyId}'";
-        $query = self::connect()->query($countSql);
+        $countSql = "select count(*) as number from " . self::tableName() . " where `topic_id` = :topic_id and `key_id` = :key_id";
+        $query = self::connect()->prepare($countSql);
+        self::execute($query, ['topic_id' => $topicId, 'key_id' => $keyId]);
         $count = $query->fetch(\PDO::FETCH_ASSOC);
         return $count["number"] ? intval($count["number"]) : 0;
+    }
+
+    private static function filterNull($data) {
+        return array_filter($data, function ($value) {
+            return !is_null($value);
+        });
+    }
+
+    private static function execute(\PDOStatement $stmt, $data) {
+        foreach ($data as $field => $value) {
+            $stmt->bindValue(':' . $field, $value);
+        }
+        if (!$stmt->execute()) {
+            $error = $stmt->errorInfo();
+            self::setCodeMsg($error[0], isset($error[2]) ? $error[2] : 'SQL execute failed');
+            return false;
+        }
+        return true;
+    }
+
+    private static function quoteIdentifier($name) {
+        return '`' . str_replace('`', '``', $name) . '`';
+    }
+
+    private static function tableName() {
+        return self::quoteIdentifier(self::$config->table->value());
     }
 }
