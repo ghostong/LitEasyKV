@@ -24,4 +24,6 @@ interface DriverInterface
 
     public static function select(SelectMapper $selectMapper);
 
+    public static function count($topic, $key);
+
 }

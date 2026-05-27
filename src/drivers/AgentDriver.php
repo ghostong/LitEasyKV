@@ -13,14 +13,14 @@ class AgentDriver
     use \Lit\Utils\LiErrMsg;
 
     public static function config(MySQLConfigMapper $mySQLConfig = null, RedisConfigMapper $redisConfig = null) {
-        if (!is_null($mySQLConfig) && !$mySQLConfig->check()) {
-            throw new \Exception($mySQLConfig->errMsg(), $mySQLConfig->errCode());
-        }
         if (!is_null($redisConfig) && !$redisConfig->check()) {
             throw new \Exception($redisConfig->errMsg(), $redisConfig->errCode());
         }
-        MySQLDriver::config($mySQLConfig);
+        if (!is_null($mySQLConfig) && !$mySQLConfig->check()) {
+            throw new \Exception($mySQLConfig->errMsg(), $mySQLConfig->errCode());
+        }
         RedisDriver::config($redisConfig);
+        MySQLDriver::config($mySQLConfig);
     }
 
     public static function add(DataMapper $dataMapper) {
@@ -29,15 +29,16 @@ class AgentDriver
             return false;
         }
 
+        if (RedisDriver::isEnable() && !RedisDriver::add($dataMapper)) {
+            self::setCodeMsg(RedisDriver::getCode(), RedisDriver::getMsg());
+            return false;
+        }
+
         if (MySQLDriver::isEnable() && !MySQLDriver::add($dataMapper)) {
             self::setCodeMsg(MySQLDriver::getCode(), MySQLDriver::getMsg());
             return false;
         }
 
-        if (RedisDriver::isEnable() && !RedisDriver::add($dataMapper)) {
-            self::setCodeMsg(RedisDriver::getCode(), RedisDriver::getMsg());
-            return false;
-        }
         return true;
     }
 
@@ -47,12 +48,12 @@ class AgentDriver
             return false;
         }
 
-        if (MySQLDriver::isEnable() && !MySQLDriver::modify($dataMapper, $extendAppend)) {
-            self::setCodeMsg(MySQLDriver::getCode(), MySQLDriver::getMsg());
-        }
-
         if (RedisDriver::isEnable() && !RedisDriver::modify($dataMapper, $extendAppend)) {
             self::setCodeMsg(RedisDriver::getCode(), RedisDriver::getMsg());
+        }
+
+        if (MySQLDriver::isEnable() && !MySQLDriver::modify($dataMapper, $extendAppend)) {
+            self::setCodeMsg(MySQLDriver::getCode(), MySQLDriver::getMsg());
         }
         return true;
     }
@@ -72,7 +73,7 @@ class AgentDriver
             if ($data = RedisDriver::get($topic, $key, $value)) {
                 return $data;
             } else {
-                self::setCodeMsg(MySQLDriver::getCode(), MySQLDriver::getMsg());
+                self::setCodeMsg(RedisDriver::getCode(), RedisDriver::getMsg());
             }
         }
         if (MySQLDriver::isEnable()) {
