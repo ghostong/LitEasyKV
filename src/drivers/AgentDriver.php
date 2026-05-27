@@ -36,6 +36,9 @@ class AgentDriver
 
         if (MySQLDriver::isEnable() && !MySQLDriver::add($dataMapper)) {
             self::setCodeMsg(MySQLDriver::getCode(), MySQLDriver::getMsg());
+            if (RedisDriver::isEnable()) {
+                RedisDriver::delete($dataMapper->topic->value(), $dataMapper->key->value(), $dataMapper->value->value());
+            }
             return false;
         }
 
@@ -107,17 +110,15 @@ class AgentDriver
 
     public static function count($topic, $key) {
         if (RedisDriver::isEnable()) {
-            if ($data = RedisDriver::count($topic, $key)) {
+            $data = RedisDriver::count($topic, $key);
+            if ($data > 0) {
                 return $data;
-            } else {
-                self::setCodeMsg(MySQLDriver::getCode(), MySQLDriver::getMsg());
             }
         }
         if (MySQLDriver::isEnable()) {
-            if ($data = MySQLDriver::count($topic, $key)) {
+            $data = MySQLDriver::count($topic, $key);
+            if ($data > 0) {
                 return $data;
-            } else {
-                self::setCodeMsg(MySQLDriver::getCode(), MySQLDriver::getMsg());
             }
         }
         return 0;

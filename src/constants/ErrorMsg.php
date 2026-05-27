@@ -25,8 +25,9 @@ use Lit\Utils\LiConst;
  * @value("DATA_EXTEND_ERROR","extend 错误, 应为数组且 json_encode 后总长度不超过 65535")
  * @value("DATA_CREATE_TIME_ERROR","创建时间错误")
  * @value("DATA_UPDATE_TIME_ERROR","更新时间错误")
- * @value("DATA_WEIGHT_ERROR","用户自定义权重错误")
+ * @value("DATA_WEIGHT_ERROR","用户自定义权重错误, 必须为大于等于 0 的整数")
  * @value("DATA_ALREADY_EXISTS","数据已经存在")
+ * @value("DATA_NOT_EXISTS","数据不存在")
  *
  * @value("SELECT_ORDER_SCENE_ERROR","排序方式必须在白名单之内")
  * @value("SELECT_PAGE_ERROR","页码错误")
@@ -54,8 +55,9 @@ class ErrorMsg extends LiConst
     const DATA_EXTEND_ERROR = 10204; //extend 错误, 应为数组且 json_encode 后总长度不超过 65535
     const DATA_CREATE_TIME_ERROR = 10205; //创建时间错误
     const DATA_UPDATE_TIME_ERROR = 10206; //更新时间错误
-    const DATA_WEIGHT_ERROR = 10207; //用户自定义权重错误
+    const DATA_WEIGHT_ERROR = 10207; //用户自定义权重错误, 必须为大于等于 0 的整数
     const DATA_ALREADY_EXISTS = 10208; //数据已经存在
+    const DATA_NOT_EXISTS = 10209; //数据不存在
 
     const SELECT_ORDER_SCENE_ERROR = 10301;//排序方式必须在白名单之内
     const SELECT_PAGE_ERROR = 10302;//页码错误

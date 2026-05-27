@@ -69,9 +69,10 @@ class RedisDriver implements DriverInterface
         if (!$info) {
             return false;
         }
+        $newExtend = $dataMapper->extend->value();
         if ($extendAppend) {
-            $dataMapper->extend = array_merge($info->extend->value(), $dataMapper->extend->value());
-        } elseif (is_null($dataMapper->extend->value())) {
+            $dataMapper->extend = is_null($newExtend) ? $info->extend->value() : array_merge($info->extend->value(), $newExtend);
+        } elseif (is_null($newExtend)) {
             $dataMapper->extend = $info->extend->value();
         }
         $dataMapper->update_time = date("Y-m-d H:i:s");

@@ -44,7 +44,7 @@ class DataMapper extends Parameter
         })->setCode(ErrorMsg::DATA_EXTEND_ERROR)->setMsg(ErrorMsg::getComment(ErrorMsg::DATA_EXTEND_ERROR));
 
         //数据权重
-        $this->weight->isInteger()->setDefault(1)->setCode(ErrorMsg::DATA_WEIGHT_ERROR)->setMsg(ErrorMsg::getComment(ErrorMsg::DATA_WEIGHT_ERROR));
+        $this->weight->isInteger()->ge(0)->setDefault(1)->setCode(ErrorMsg::DATA_WEIGHT_ERROR)->setMsg(ErrorMsg::getComment(ErrorMsg::DATA_WEIGHT_ERROR));
 
         //创建时间 自动维护(选填)
         $this->create_time->isString()->setCode(ErrorMsg::DATA_CREATE_TIME_ERROR)->setMsg(ErrorMsg::getComment(ErrorMsg::DATA_CREATE_TIME_ERROR));
