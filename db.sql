@@ -8,7 +8,7 @@ CREATE TABLE `easy_kv` (
    `extend` text NOT NULL COMMENT '扩展字段',
    `create_time` datetime NOT NULL COMMENT '创建时间',
    `update_time` datetime NOT NULL COMMENT '更新时间',
-   `weight` int(11) NOT NULL DEFAULT '1' COMMENT '自定义排序',
-   UNIQUE KEY `unique_id` (`topic_id`,`key_id`,`value_id`) USING BTREE,
-   KEY `topic_id` (`topic_id`,`key_id`,`value_id`,`weight`)
+   `weight` int unsigned NOT NULL DEFAULT '1' COMMENT '自定义排序',
+    PRIMARY KEY (`topic_id`,`key_id`,`value_id`),
+    KEY `idx_topic_key_weight_value` (`topic_id`,`key_id`,`weight`,`value_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
